@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import '../services/location.dart';
 
 class LoadingScreen extends StatefulWidget {
@@ -7,11 +8,30 @@ class LoadingScreen extends StatefulWidget {
 }
 
 class _LoadingScreenState extends State<LoadingScreen> {
+  double latitude;
+  double longitude;
+
   void getLocation() async {
     Location location = Location();
     await location.getCurrentLocation();
-    print(location.latitude);
-    print(location.longitude);
+    setState(() {
+      latitude = location.latitude;
+      longitude = location.longitude;
+      print(latitude);
+      print(longitude);
+      getData(); //função abaixo
+    });
+  }
+
+  void getData() async {
+    var url = await Uri.parse(
+        'https://api.openweathermap.org/data/2.5/weather?lat=' +
+            latitude.toString() +
+            '&lon=' +
+            longitude.toString() +
+            '&appid=91b179234010a025efa8cffdc13a878c');
+    var response = await http.get(url);
+    print(response.body);
   }
 
   void initState() {
@@ -21,6 +41,11 @@ class _LoadingScreenState extends State<LoadingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Scaffold(
+        body: Container(
+            child: Text("Latitude = " +
+                latitude.toString() +
+                ", Longitude = " +
+                longitude.toString())));
   }
 }
